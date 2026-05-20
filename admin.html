@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BikePowell Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --gray-bg: #F7F6F2;
+    --gray-border: #D3D1C7;
+    --gray-text: #5F5E5A;
+    --text: #2C2C2A;
+    --white: #ffffff;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--gray-bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 1.5rem 1rem 3rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .page-header a {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--green);
+    text-decoration: none;
+  }
+
+  /* LOGIN SCREEN */
+  #login-screen {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  #login-screen h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+
+  /* FORM STYLES */
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  select {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font-family: var(--sans);
+    font-size: 1rem;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--text);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+
+  /* Accessible toggle */
+  .toggle-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .toggle-option {
+    position: relative;
+  }
+
+  .toggle-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    border: 1.5px solid var(--gray-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--gray-text);
+    background: var(--white);
+    transition: all 0.15s;
+  }
+
+  .toggle-option input[type="radio"]:checked + label.yes-label {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--green);
+  }
+
+  .toggle-option input[type="radio"]:checked + label.no-label {
+    border-color: var(--red);
+    background: var(--red-light);
+    color: var(--red);
+  }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--green);
+    color: var(--white);
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: opacity 0.15s;
+    margin-top: 0.5rem;
+  }
+
+  .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .submit-btn:not(:disabled):active { opacity: 0.85; }
+
+  .login-btn {
+    background: var(--text);
+  }
+
+  /* Status messages */
+  .status {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .status.success { background: var(--green-light); color: var(--green); display: block; }
+  .status.error   { background: var(--red-light);   color: var(--red);   display: block; }
+
+  /* Business list (admin view) */
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-text);
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  .admin-card {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .admin-card-info { flex: 1; min-width: 0; }
+  .admin-card-name { font-size: 0.9rem; font-weight: 500; }
+  .admin-card-type { font-size: 0.75rem; color: var(--gray-text); margin-top: 1px; }
+
+  .delete-btn {
+    background: none;
+    border: 1px solid var(--gray-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--red);
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: var(--sans);
+    transition: background 0.15s;
+  }
+
+  .delete-btn:hover { background: var(--red-light); }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.yes { background: var(--green); }
+  .dot.no  { background: var(--red); }
+
+  .add-card {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+
+  .add-card h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .type-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+  }
+
+  .type-chip {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--gray-border);
+    background: var(--white);
+    color: var(--gray-text);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.12s;
+  }
+
+  .type-chip:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #admin-screen { display: none; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <span>🚲</span>
+  <h1>BikePowell Admin</h1>
+  <a href="index.html">← Public site</a>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <h2>Enter admin password</h2>
+  <div class="form-group">
+    <label for="password-input">Password</label>
+    <input type="password" id="password-input" autocomplete="current-password" placeholder="••••••••">
+  </div>
+  <div id="login-status" class="status"></div>
+  <button class="submit-btn login-btn" onclick="login()">Unlock</button>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="admin-screen">
+
+  <div class="add-card">
+    <h2>Add a business</h2>
+
+    <div id="add-status" class="status"></div>
+
+    <div class="form-group">
+      <label for="biz-name">Business name</label>
+      <input type="text" id="biz-name" placeholder="e.g. Powell Craft Brewing" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="biz-type">Type</label>
+      <input type="text" id="biz-type" placeholder="e.g. Restaurant" autocomplete="off">
+      <div class="type-suggestions">
+        <button class="type-chip" onclick="setType('Grocery')">Grocery</button>
+        <button class="type-chip" onclick="setType('Restaurant')">Restaurant</button>
+        <button class="type-chip" onclick="setType('Coffee')">Coffee</button>
+        <button class="type-chip" onclick="setType('Retail')">Retail</button>
+        <button class="type-chip" onclick="setType('Pharmacy')">Pharmacy</button>
+        <button class="type-chip" onclick="setType('Fitness')">Fitness</button>
+        <button class="type-chip" onclick="setType('Brewery')">Brewery</button>
+        <button class="type-chip" onclick="setType('Specialty')">Specialty</button>
+        <button class="type-chip" onclick="setType('Gas / Fuel')">Gas / Fuel</button>
+        <button class="type-chip" onclick="setType('Services')">Services</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="biz-address">Street address</label>
+      <input type="text" id="biz-address" placeholder="e.g. 47 N Liberty St, Powell, OH 43065" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label>Bike / walk accessible?</label>
+      <div class="toggle-group">
+        <div class="toggle-option">
+          <input type="radio" name="accessible" id="acc-yes" value="yes">
+          <label for="acc-yes" class="yes-label">✅ Yes</label>
+        </div>
+        <div class="toggle-option">
+          <input type="radio" name="accessible" id="acc-no" value="no" checked>
+          <label for="acc-no" class="no-label">🚧 Not yet</label>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="add-btn" onclick="addBusiness()">Add business</button>
+  </div>
+
+  <p class="section-title">All businesses</p>
+  <div id="admin-list">
+    <p style="color: var(--gray-text); font-size: 0.875rem;">Loading…</p>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIGURATION ─────────────────────────────────────────────
+// Same Worker URL as index.html — update both when you deploy.
+const WORKER_URL = "https://bikepowell-api.jjprats.workers.dev";
+// ─────────────────────────────────────────────────────────────
+
+let adminPassword = "";
+
+function login() {
+  const pw = document.getElementById("password-input").value.trim();
+  if (!pw) return;
+  adminPassword = pw;
+
+  // Test the password by making a real API call
+  const testBtn = document.querySelector(".login-btn");
+  testBtn.disabled = true;
+  testBtn.innerHTML = '<span class="spinner"></span>Checking…';
+
+  fetch(WORKER_URL + "/businesses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Admin-Password": pw },
+    body: JSON.stringify({ _test: true }) // missing fields → 400, not 401
+  }).then(res => {
+    testBtn.disabled = false;
+    testBtn.textContent = "Unlock";
+    if (res.status === 401) {
+      showStatus("login-status", "error", "Wrong password.");
+      adminPassword = "";
+    } else {
+      // 400 = bad body but auth passed — that's fine, we're just testing
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("admin-screen").style.display = "block";
+      loadAdminList();
+    }
+  }).catch(() => {
+    testBtn.disabled = false;
+    testBtn.textContent = "Unlock";
+    showStatus("login-status", "error", "Could not reach the Worker. Check your connection.");
+  });
+}
+
+// Allow Enter key on password field
+document.getElementById("password-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") login();
+});
+
+function setType(val) {
+  document.getElementById("biz-type").value = val;
+  document.getElementById("biz-type").focus();
+}
+
+function showStatus(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = "status " + type;
+  el.textContent = msg;
+  setTimeout(() => { el.className = "status"; }, 4000);
+}
+
+async function addBusiness() {
+  const name    = document.getElementById("biz-name").value.trim();
+  const type    = document.getElementById("biz-type").value.trim();
+  const address = document.getElementById("biz-address").value.trim();
+  const accessible = document.querySelector('input[name="accessible"]:checked').value === "yes";
+
+  if (!name || !type || !address) {
+    showStatus("add-status", "error", "Please fill in name, type, and address.");
+    return;
+  }
+
+  const btn = document.getElementById("add-btn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Saving…';
+
+  try {
+    const res = await fetch(WORKER_URL + "/businesses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Password": adminPassword },
+      body: JSON.stringify({ name, type, address, accessible }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Unknown error");
+
+    showStatus("add-status", "success", `"${name}" added!`);
+    document.getElementById("biz-name").value    = "";
+    document.getElementById("biz-type").value    = "";
+    document.getElementById("biz-address").value = "";
+    document.getElementById("acc-no").checked    = true;
+    loadAdminList();
+  } catch (err) {
+    showStatus("add-status", "error", "Error: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Add business";
+  }
+}
+
+async function deleteBusiness(id, name) {
+  if (!confirm(`Remove "${name}" from the list?`)) return;
+  try {
+    const res = await fetch(WORKER_URL + "/businesses/" + id, {
+      method: "DELETE",
+      headers: { "X-Admin-Password": adminPassword },
+    });
+    if (!res.ok) throw new Error("Failed");
+    loadAdminList();
+  } catch {
+    alert("Couldn't delete that entry. Try again.");
+  }
+}
+
+async function loadAdminList() {
+  const list = document.getElementById("admin-list");
+  list.innerHTML = '<p style="color: var(--gray-text); font-size: 0.875rem;">Loading…</p>';
+  try {
+    const res = await fetch(WORKER_URL + "/businesses");
+    const businesses = await res.json();
+
+    if (businesses.length === 0) {
+      list.innerHTML = '<p style="color: var(--gray-text); font-size: 0.875rem; font-style: italic;">No businesses yet.</p>';
+      return;
+    }
+
+    const sorted = [...businesses].sort((a, b) => a.name.localeCompare(b.name));
+    list.innerHTML = "";
+    sorted.forEach(b => {
+      const card = document.createElement("div");
+      card.className = "admin-card";
+      card.innerHTML = `
+        <div class="dot ${b.accessible ? 'yes' : 'no'}"></div>
+        <div class="admin-card-info">
+          <div class="admin-card-name">${b.name}</div>
+          <div class="admin-card-type">${b.type}</div>
+        </div>
+        <button class="delete-btn" onclick="deleteBusiness('${b.id}', '${b.name.replace(/'/g, "\\'")}')">Remove</button>`;
+      list.appendChild(card);
+    });
+  } catch {
+    list.innerHTML = '<p style="color: var(--red); font-size: 0.875rem;">Couldn\'t load list.</p>';
+  }
+}
+</script>
+</body>
+</html>
